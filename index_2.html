@@ -1,0 +1,843 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>ЕГЭ • Обществознание</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700&family=Onest:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    /* Падающие из Telegram (когда есть) — иначе наши */
+    --bg:       var(--tg-theme-bg-color, #f4efe6);
+    --surface:  var(--tg-theme-secondary-bg-color, #ffffff);
+    --ink:      var(--tg-theme-text-color, #14110d);
+    --muted:    var(--tg-theme-hint-color, #76706a);
+    --accent:   var(--tg-theme-button-color, #c9504d);
+    --on-accent: var(--tg-theme-button-text-color, #fff);
+    --border:   color-mix(in srgb, var(--ink) 12%, transparent);
+    --shadow:   0 1px 2px color-mix(in srgb, var(--ink) 8%, transparent),
+                0 8px 24px color-mix(in srgb, var(--ink) 8%, transparent);
+    --radius:   14px;
+  }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body {
+    margin: 0; padding: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: 'Onest', system-ui, -apple-system, sans-serif;
+    font-size: 16px;
+    line-height: 1.45;
+    overscroll-behavior-y: contain;
+  }
+  body {
+    min-height: 100vh;
+    padding: 16px 16px calc(120px + env(safe-area-inset-bottom));
+  }
+  .display { font-family: 'Unbounded', 'Onest', sans-serif; letter-spacing: -0.01em; }
+
+  /* ===== Шапка ===== */
+  header {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 22px; padding-top: 8px;
+  }
+  .logo { font-family: 'Unbounded', sans-serif; font-weight: 700; font-size: 18px; }
+  .logo span { color: var(--accent); }
+  .badge {
+    font-size: 12px; padding: 6px 10px; border-radius: 999px;
+    background: color-mix(in srgb, var(--accent) 12%, transparent);
+    color: var(--accent); font-weight: 600;
+  }
+
+  /* ===== Заголовки экранов ===== */
+  h1.display {
+    font-size: 26px; font-weight: 700; line-height: 1.1;
+    margin: 8px 0 6px;
+  }
+  .subtitle { color: var(--muted); font-size: 14px; margin-bottom: 22px; }
+
+  /* ===== Карточки режимов на главной ===== */
+  .mode-card {
+    display: block; width: 100%; text-align: left;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 16px 18px;
+    margin-bottom: 10px;
+    box-shadow: var(--shadow);
+    cursor: pointer;
+    transition: transform .08s ease, border-color .15s ease;
+    font: inherit; color: inherit;
+  }
+  .mode-card:active { transform: scale(0.985); }
+  .mode-card .t { font-weight: 600; font-size: 16px; }
+  .mode-card .d { color: var(--muted); font-size: 13px; margin-top: 2px; }
+  .mode-card.primary {
+    background: var(--ink); color: var(--bg); border-color: var(--ink);
+  }
+  .mode-card.primary .d { color: color-mix(in srgb, var(--bg) 70%, transparent); }
+
+  /* ===== Стат-блок ===== */
+  .stats {
+    display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px;
+    margin-bottom: 22px;
+  }
+  .stat {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 12px;
+  }
+  .stat .n { font-family: 'Unbounded', sans-serif; font-size: 22px; font-weight: 700; }
+  .stat .l { color: var(--muted); font-size: 12px; margin-top: 2px; }
+
+  /* ===== Экран вопроса ===== */
+  .meta {
+    font-size: 12px; color: var(--muted); margin-bottom: 8px;
+    display: flex; gap: 8px; align-items: center; flex-wrap: wrap;
+  }
+  .meta .pill {
+    padding: 4px 10px; border-radius: 999px;
+    background: color-mix(in srgb, var(--ink) 8%, transparent);
+    color: var(--ink); font-weight: 500;
+  }
+  .question-text {
+    font-size: 17px; line-height: 1.5; margin: 4px 0 18px;
+  }
+
+  /* ===== Варианты ответа ===== */
+  .options { display: flex; flex-direction: column; gap: 8px; margin-bottom: 18px; }
+  .option {
+    display: flex; gap: 12px; align-items: flex-start;
+    background: var(--surface); border: 1.5px solid var(--border);
+    border-radius: 12px; padding: 12px 14px;
+    cursor: pointer; user-select: none;
+    transition: border-color .15s ease, background .15s ease;
+  }
+  .option .num {
+    flex-shrink: 0;
+    width: 26px; height: 26px; border-radius: 8px;
+    display: grid; place-items: center;
+    background: color-mix(in srgb, var(--ink) 6%, transparent);
+    font-weight: 600; font-size: 14px;
+  }
+  .option .txt { font-size: 15px; line-height: 1.4; }
+  .option.selected {
+    border-color: var(--accent);
+    background: color-mix(in srgb, var(--accent) 8%, var(--surface));
+  }
+  .option.selected .num {
+    background: var(--accent); color: var(--on-accent);
+  }
+  .option.correct { border-color: #2c9e6a; background: color-mix(in srgb, #2c9e6a 10%, var(--surface)); }
+  .option.correct .num { background: #2c9e6a; color: #fff; }
+  .option.wrong { border-color: #c9504d; background: color-mix(in srgb, #c9504d 10%, var(--surface)); }
+  .option.wrong .num { background: #c9504d; color: #fff; }
+
+  /* ===== Ввод (для типов с последовательностью) ===== */
+  .input-wrap { margin-bottom: 18px; }
+  .input-wrap label { display: block; font-size: 13px; color: var(--muted); margin-bottom: 6px; }
+  .answer-input {
+    width: 100%; padding: 14px 16px; font-family: 'Unbounded', monospace;
+    font-size: 22px; font-weight: 600; letter-spacing: 0.08em; text-align: center;
+    background: var(--surface); color: var(--ink);
+    border: 1.5px solid var(--border); border-radius: 12px;
+    outline: none;
+  }
+  .answer-input:focus { border-color: var(--accent); }
+
+  /* ===== Фидбэк ===== */
+  .feedback {
+    border-radius: var(--radius); padding: 16px 18px; margin-bottom: 16px;
+    border: 1.5px solid; font-size: 15px;
+  }
+  .feedback.ok    { border-color: #2c9e6a; background: color-mix(in srgb, #2c9e6a 8%, var(--surface)); }
+  .feedback.bad   { border-color: #c9504d; background: color-mix(in srgb, #c9504d 8%, var(--surface)); }
+  .feedback .h { font-family: 'Unbounded', sans-serif; font-weight: 600; margin-bottom: 4px; }
+  .feedback .correct-line { margin-top: 8px; color: var(--muted); font-size: 14px; }
+  .feedback .correct-line b { color: var(--ink); font-family: 'Unbounded', monospace; letter-spacing: 0.08em; }
+
+  /* ===== Список тем ===== */
+  .topic {
+    display: flex; justify-content: space-between; align-items: center;
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 12px; padding: 12px 14px; margin-bottom: 6px;
+    cursor: pointer;
+  }
+  .topic .code {
+    font-family: 'Unbounded', monospace; font-size: 12px; font-weight: 600;
+    color: var(--accent); margin-right: 8px;
+  }
+  .topic .title { font-size: 14px; line-height: 1.35; }
+  .topic .count { color: var(--muted); font-size: 12px; margin-left: 10px; flex-shrink: 0; }
+
+  /* ===== Кнопка-фоллбэк (если MainButton недоступен / dev в браузере) ===== */
+  .bottom-action {
+    position: fixed; left: 0; right: 0;
+    bottom: env(safe-area-inset-bottom);
+    padding: 12px 16px;
+    background: linear-gradient(to top, var(--bg) 70%, transparent);
+  }
+  .btn-primary {
+    width: 100%; padding: 14px 16px;
+    background: var(--accent); color: var(--on-accent);
+    border: none; border-radius: 12px;
+    font: 600 16px/1 'Onest', sans-serif;
+    cursor: pointer;
+  }
+  .btn-primary[disabled] { opacity: 0.4; cursor: not-allowed; }
+
+  /* Когда работает Telegram MainButton — прячем нашу */
+  body.has-main-button .bottom-action { display: none; }
+
+  /* ===== Таймер экзамена ===== */
+  .timer-pill {
+    font-family: 'Unbounded', monospace; font-weight: 600;
+    font-size: 13px; padding: 4px 10px; border-radius: 999px;
+    background: color-mix(in srgb, var(--accent) 12%, transparent);
+    color: var(--accent);
+    margin-left: auto;  /* прижимает к правому краю в .meta */
+  }
+  .timer-pill.warning {
+    background: color-mix(in srgb, #c9504d 18%, transparent);
+    color: #c9504d;
+  }
+
+  /* ===== Экран интро экзамена ===== */
+  .exam-intro-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 16px 18px;
+    margin-bottom: 12px;
+  }
+  .exam-intro-card ul { margin: 0; padding-left: 18px; }
+  .exam-intro-card li { margin: 6px 0; color: var(--muted); font-size: 14px; }
+  .exam-intro-card li b { color: var(--ink); font-weight: 600; }
+
+  /* ===== Экран результатов экзамена ===== */
+  .exam-hero { text-align: center; margin: 16px 0 8px; }
+  .exam-hero .score {
+    font-family: 'Unbounded', sans-serif;
+    font-size: 64px; font-weight: 700;
+    line-height: 1; letter-spacing: -0.03em;
+  }
+  .exam-hero .score .of { color: var(--muted); }
+  .exam-hero .pct { font-size: 16px; color: var(--muted); margin-top: 6px; }
+  .exam-meta-row {
+    display: flex; justify-content: center; gap: 20px;
+    color: var(--muted); font-size: 13px; margin-bottom: 24px;
+  }
+  .exam-meta-row b { color: var(--ink); font-family: 'Unbounded', monospace; }
+  .review-item {
+    display: flex; gap: 12px; align-items: flex-start;
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 12px; padding: 12px 14px; margin-bottom: 6px;
+  }
+  .review-item .mark {
+    flex-shrink: 0;
+    width: 28px; height: 28px; border-radius: 8px;
+    display: grid; place-items: center;
+    font-family: 'Unbounded', sans-serif; font-weight: 700; font-size: 14px;
+  }
+  .review-item .mark.ok  { background: color-mix(in srgb, #2c9e6a 18%, transparent); color: #2c9e6a; }
+  .review-item .mark.bad { background: color-mix(in srgb, #c9504d 18%, transparent); color: #c9504d; }
+  .review-item .body { flex: 1; min-width: 0; font-size: 13px; line-height: 1.4; }
+  .review-item .qtext { color: var(--ink); }
+  .review-item .ans { color: var(--muted); margin-top: 4px; font-size: 12px; }
+  .review-item .ans b { font-family: 'Unbounded', monospace; color: var(--ink); letter-spacing: 0.06em; }
+
+  .hidden { display: none !important; }
+
+  .loader {
+    text-align: center; color: var(--muted); padding: 40px 0;
+  }
+</style>
+</head>
+<body>
+<header>
+  <div class="logo">общ<span>·</span>ЕГЭ</div>
+  <div class="badge" id="streak-badge">⚡ 0</div>
+</header>
+
+<!-- ===== ЭКРАН: ГЛАВНАЯ ===== -->
+<section id="screen-home">
+  <h1 class="display">Тренажёр<br/>первой части</h1>
+  <p class="subtitle">983 задания из сборника А. Чубукова, 63 темы по кодификатору 2026.</p>
+
+  <div class="stats">
+    <div class="stat"><div class="n" id="stat-total">0</div><div class="l">решено</div></div>
+    <div class="stat"><div class="n" id="stat-correct">0</div><div class="l">верно</div></div>
+    <div class="stat"><div class="n" id="stat-rate">—</div><div class="l">точность</div></div>
+  </div>
+
+  <button class="mode-card primary" data-mode="random">
+    <div class="t">Случайный вопрос</div>
+    <div class="d">Из всей базы. Разогрев перед серьёзной работой.</div>
+  </button>
+  <button class="mode-card" data-mode="topics">
+    <div class="t">По теме</div>
+    <div class="d">Выбрать раздел кодификатора и закрыть пробел.</div>
+  </button>
+  <button class="mode-card" data-mode="mistakes">
+    <div class="t">Работа над ошибками <span id="mistakes-count" style="color:var(--accent)"></span></div>
+    <div class="d">Те, в которых ты ошибся раньше.</div>
+  </button>
+  <button class="mode-card" data-mode="exam">
+    <div class="t">Экзамен <span style="color:var(--muted);font-weight:500;font-size:13px">· 16 заданий · 30 мин</span></div>
+    <div class="d">Симуляция первой части. Без подсказок до конца.</div>
+  </button>
+</section>
+
+<!-- ===== ЭКРАН: ВЫБОР ТЕМЫ ===== -->
+<section id="screen-topics" class="hidden">
+  <h1 class="display">Темы</h1>
+  <p class="subtitle">Выбери раздел кодификатора</p>
+  <div id="topics-list"></div>
+</section>
+
+<!-- ===== ЭКРАН: ВОПРОС ===== -->
+<section id="screen-question" class="hidden">
+  <div class="meta">
+    <span class="pill" id="q-topic">—</span>
+    <span class="pill" id="q-type">—</span>
+    <span id="q-counter"></span>
+    <span class="timer-pill hidden" id="q-timer">30:00</span>
+  </div>
+  <div class="question-text" id="q-text"></div>
+  <div class="options" id="q-options"></div>
+  <div class="input-wrap hidden" id="q-input-wrap">
+    <label>Введи ответ цифрами (порядок важен)</label>
+    <input class="answer-input" id="q-input" inputmode="numeric" pattern="[0-9]*" maxlength="10" />
+  </div>
+  <div class="feedback hidden" id="q-feedback"></div>
+</section>
+
+<!-- ===== ЭКРАН: ИНТРО ЭКЗАМЕНА ===== -->
+<section id="screen-exam-intro" class="hidden">
+  <h1 class="display">Режим «Экзамен»</h1>
+  <p class="subtitle">Симуляция первой части ЕГЭ</p>
+  <div class="exam-intro-card">
+    <ul>
+      <li><b>16 заданий</b> — по одному каждого типа (1–16, 19)</li>
+      <li><b>30 минут</b> на всё</li>
+      <li><b>Без подсказок:</b> правильные ответы покажу только в конце</li>
+      <li>Можно пропускать — оставлять пустым</li>
+      <li>Ошибки попадут в «Работу над ошибками»</li>
+      <li>Общая статистика не меняется — это тренировка</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ===== ЭКРАН: РЕЗУЛЬТАТЫ ЭКЗАМЕНА ===== -->
+<section id="screen-exam-results" class="hidden">
+  <h1 class="display" style="font-size:20px;margin-bottom:0">Итоги экзамена</h1>
+  <div class="exam-hero">
+    <div class="score"><span id="er-correct">0</span><span class="of">/<span id="er-total">16</span></span></div>
+    <div class="pct" id="er-pct">—</div>
+  </div>
+  <div class="exam-meta-row">
+    <span>Время: <b id="er-time">—</b></span>
+    <span>Ошибок: <b id="er-wrong">—</b></span>
+  </div>
+  <h2 class="display" style="font-size:16px;margin:8px 0 12px">Разбор по заданиям</h2>
+  <div id="er-list"></div>
+</section>
+
+<div class="bottom-action" id="bottom-action">
+  <button class="btn-primary" id="btn-action" disabled>Ответить</button>
+</div>
+
+<script>
+"use strict";
+
+const tg = window.Telegram?.WebApp;
+const isTG = !!tg && !!tg.initData;       // настоящий запуск из Telegram
+if (tg) { tg.ready(); tg.expand(); tg.enableClosingConfirmation?.(); }
+
+// ===== Хранилище: Telegram CloudStorage с фоллбэком в localStorage =====
+const Store = {
+  get(key) {
+    return new Promise((resolve) => {
+      if (isTG && tg.CloudStorage) {
+        tg.CloudStorage.getItem(key, (err, val) => resolve(err ? null : (val || null)));
+      } else {
+        resolve(localStorage.getItem(key));
+      }
+    });
+  },
+  set(key, value) {
+    return new Promise((resolve) => {
+      if (isTG && tg.CloudStorage) {
+        tg.CloudStorage.setItem(key, value, () => resolve());
+      } else {
+        localStorage.setItem(key, value); resolve();
+      }
+    });
+  },
+};
+
+const StatsKey = "stats_v1";
+const MistakesKey = "mistakes_v1";
+
+const defaultStats = { total: 0, correct: 0, streak: 0, byTopic: {} };
+let stats = { ...defaultStats };
+let mistakes = [];     // массив id вопросов
+let questions = [];    // вся база
+let topicsIndex = {};  // code -> { title, items: [] }
+
+// ===== Загрузка статистики =====
+async function loadState() {
+  const s = await Store.get(StatsKey);
+  const m = await Store.get(MistakesKey);
+  if (s) try { stats = { ...defaultStats, ...JSON.parse(s) }; } catch {}
+  if (m) try { mistakes = JSON.parse(m) || []; } catch {}
+}
+async function saveState() {
+  await Store.set(StatsKey, JSON.stringify(stats));
+  await Store.set(MistakesKey, JSON.stringify(mistakes));
+}
+
+// ===== Загрузка вопросов =====
+async function loadQuestions() {
+  const r = await fetch("questions.json");
+  questions = await r.json();
+  for (const q of questions) {
+    if (!topicsIndex[q.topic_code]) {
+      topicsIndex[q.topic_code] = { title: q.topic_title, items: [] };
+    }
+    topicsIndex[q.topic_code].items.push(q);
+  }
+}
+
+// ===== Сравнение ответов =====
+// Если ответ содержит повторы — это задание на соответствие/последовательность (порядок важен).
+// Иначе — порядок цифр не важен (ФИПИ так и оценивает).
+function isOrderSensitive(ans) {
+  const s = new Set(ans);
+  return s.size !== ans.length;
+}
+function normalize(a) {
+  a = (a || "").replace(/\s+/g, "").toLowerCase();
+  return a;
+}
+function checkAnswer(user, correct) {
+  const u = normalize(user), c = normalize(correct);
+  if (!u) return false;
+  if (isOrderSensitive(c) || /[а-яёa-z]/.test(c)) return u === c;
+  // только цифры, порядок не важен
+  return u.split("").sort().join("") === c.split("").sort().join("");
+}
+
+// ===== Рендеринг =====
+const $ = (id) => document.getElementById(id);
+const screens = ["home", "topics", "question", "exam-intro", "exam-results"];
+function showScreen(name) {
+  for (const s of screens) $(`screen-${s}`).classList.toggle("hidden", s !== name);
+  // BackButton
+  if (isTG) {
+    if (name === "home") tg.BackButton.hide();
+    else { tg.BackButton.show(); }
+  }
+}
+
+function renderHome() {
+  $("stat-total").textContent = stats.total;
+  $("stat-correct").textContent = stats.correct;
+  $("stat-rate").textContent = stats.total
+    ? Math.round((stats.correct / stats.total) * 100) + "%"
+    : "—";
+  $("streak-badge").textContent = `⚡ ${stats.streak}`;
+  $("mistakes-count").textContent = mistakes.length ? ` · ${mistakes.length}` : "";
+  setActionButton(null);
+}
+
+function renderTopics() {
+  const codes = Object.keys(topicsIndex).sort((a, b) => {
+    const [a1, a2] = a.split(".").map(Number);
+    const [b1, b2] = b.split(".").map(Number);
+    return a1 - b1 || a2 - b2;
+  });
+  const html = codes.map(code => {
+    const t = topicsIndex[code];
+    return `<div class="topic" data-code="${code}">
+      <div><span class="code">${code}</span><span class="title">${escapeHtml(t.title)}</span></div>
+      <div class="count">${t.items.length}</div>
+    </div>`;
+  }).join("");
+  $("topics-list").innerHTML = html;
+  $("topics-list").querySelectorAll(".topic").forEach(el => {
+    el.addEventListener("click", () => startQuiz({ topic: el.dataset.code }));
+  });
+  setActionButton(null);
+}
+
+// ===== Викторина =====
+let currentQ = null;
+let currentPool = [];        // массив вопросов в текущей сессии
+let currentIndex = 0;
+let selected = new Set();
+let useInput = false;
+let answered = false;
+
+// ===== Экзамен =====
+let examMode = false;
+let examAnswers = [];       // [{q, userAnswer, correct}]
+let examStartTime = 0;
+let examTimerId = null;
+const EXAM_DURATION_MS = 30 * 60 * 1000;
+
+function startQuiz(opts) {
+  let pool;
+  if (opts.topic) pool = topicsIndex[opts.topic].items.slice();
+  else if (opts.mistakes) pool = questions.filter(q => mistakes.includes(q.id));
+  else pool = questions.slice();
+
+  if (!pool.length) {
+    alert("Нет доступных вопросов в этом режиме");
+    return;
+  }
+  // перемешать
+  pool.sort(() => Math.random() - 0.5);
+  currentPool = pool;
+  currentIndex = 0;
+  showScreen("question");
+  renderQuestion();
+}
+
+function renderQuestion() {
+  currentQ = currentPool[currentIndex];
+  selected = new Set();
+  answered = false;
+  $("q-feedback").classList.add("hidden");
+  $("q-topic").textContent = currentQ.topic_code;
+  $("q-type").textContent = `тип ${currentQ.task_type}`;
+  $("q-counter").textContent = `${currentIndex + 1}/${currentPool.length}`;
+  $("q-text").textContent = currentQ.question;
+
+  // Решаем: показывать варианты как кнопки или как поле ввода
+  const orderSensitive = isOrderSensitive(currentQ.answer);
+  const hasOptions = currentQ.options && currentQ.options.length > 0;
+  useInput = !hasOptions || orderSensitive;
+
+  const opts = $("q-options");
+  opts.innerHTML = "";
+  if (hasOptions) {
+    currentQ.options.forEach((opt, i) => {
+      const m = opt.match(/^(\d+)\)\s*(.*)$/);
+      const num = m ? m[1] : String(i + 1);
+      const txt = m ? m[2] : opt;
+      const div = document.createElement("div");
+      div.className = "option";
+      div.dataset.num = num;
+      div.innerHTML = `<div class="num">${num}</div><div class="txt">${escapeHtml(txt)}</div>`;
+      if (!useInput) {
+        div.addEventListener("click", () => toggleOption(div));
+      }
+      opts.appendChild(div);
+    });
+  }
+
+  $("q-input-wrap").classList.toggle("hidden", !useInput);
+  if (useInput) {
+    $("q-input").value = "";
+    $("q-input").oninput = (e) => {
+      e.target.value = e.target.value.replace(/[^0-9]/g, "");
+      if (!examMode) setActionEnabled(e.target.value.length > 0);
+    };
+  }
+
+  // Таймер — только в экзамене
+  $("q-timer").classList.toggle("hidden", !examMode);
+
+  if (examMode) {
+    const isLast = currentIndex + 1 >= currentPool.length;
+    setActionButton(isLast ? "exam-finish" : "exam-next");
+    setActionEnabled(true);  // в экзамене всегда можно идти дальше
+  } else {
+    setActionButton("answer");
+    setActionEnabled(false);
+  }
+}
+
+function toggleOption(el) {
+  if (answered) return;
+  const n = el.dataset.num;
+  if (selected.has(n)) { selected.delete(n); el.classList.remove("selected"); }
+  else { selected.add(n); el.classList.add("selected"); }
+  if (!examMode) setActionEnabled(selected.size > 0);
+}
+
+async function submitAnswer() {
+  if (answered) return;
+  let userAnswer;
+  if (useInput) userAnswer = $("q-input").value.trim();
+  else userAnswer = [...selected].sort().join("");
+
+  const ok = checkAnswer(userAnswer, currentQ.answer);
+  answered = true;
+
+  // фидбэк
+  const fb = $("q-feedback");
+  fb.classList.remove("hidden", "ok", "bad");
+  fb.classList.add(ok ? "ok" : "bad");
+  fb.innerHTML = ok
+    ? `<div class="h">Верно ✓</div><div>Запомнили.</div>`
+    : `<div class="h">Не совсем</div>
+       <div class="correct-line">Правильный ответ: <b>${escapeHtml(currentQ.answer)}</b></div>`;
+  // Подсветка вариантов
+  if (!useInput) {
+    const correctDigits = new Set(currentQ.answer.split(""));
+    $("q-options").querySelectorAll(".option").forEach(el => {
+      const n = el.dataset.num;
+      el.classList.remove("selected");
+      if (correctDigits.has(n)) el.classList.add("correct");
+      else if (selected.has(n)) el.classList.add("wrong");
+    });
+  }
+
+  // Хаптик
+  if (isTG) tg.HapticFeedback?.notificationOccurred(ok ? "success" : "error");
+
+  // Обновляем статистику
+  stats.total += 1;
+  if (ok) {
+    stats.correct += 1;
+    stats.streak += 1;
+    mistakes = mistakes.filter(id => id !== currentQ.id);
+  } else {
+    stats.streak = 0;
+    if (!mistakes.includes(currentQ.id)) mistakes.push(currentQ.id);
+  }
+  stats.byTopic[currentQ.topic_code] ??= { total: 0, correct: 0 };
+  stats.byTopic[currentQ.topic_code].total += 1;
+  if (ok) stats.byTopic[currentQ.topic_code].correct += 1;
+  await saveState();
+
+  setActionButton("next");
+  setActionEnabled(true);
+}
+
+function nextQuestion() {
+  currentIndex = (currentIndex + 1) % currentPool.length;
+  // перемешиваем заново, когда дошли до конца
+  if (currentIndex === 0) currentPool.sort(() => Math.random() - 0.5);
+  renderQuestion();
+}
+
+// ===== Главная кнопка (MainButton + фоллбэк) =====
+let actionMode = null;
+// mode -> [текст для фоллбэка, текст для Telegram MainButton]
+const ACTION_TEXTS = {
+  "answer":       ["Ответить",          "ОТВЕТИТЬ"],
+  "next":         ["Дальше",            "ДАЛЬШЕ"],
+  "exam-next":    ["Дальше",            "ДАЛЬШЕ"],
+  "exam-finish":  ["Завершить экзамен", "ЗАВЕРШИТЬ"],
+  "start-exam":   ["Начать экзамен",    "НАЧАТЬ"],
+  "back-home":    ["На главную",        "НА ГЛАВНУЮ"],
+};
+let mainBtnHandler = null;
+function setActionButton(mode) {
+  actionMode = mode;
+  if (!isTG || !tg.MainButton) {
+    const btn = $("btn-action");
+    if (!mode) { $("bottom-action").classList.add("hidden"); return; }
+    $("bottom-action").classList.remove("hidden");
+    btn.textContent = ACTION_TEXTS[mode][0];
+    btn.onclick = handleAction;
+    return;
+  }
+  document.body.classList.add("has-main-button");
+  if (!mode) { tg.MainButton.hide(); return; }
+  tg.MainButton.setText(ACTION_TEXTS[mode][1]);
+  tg.MainButton.show();
+  if (mainBtnHandler) tg.MainButton.offClick(mainBtnHandler);
+  mainBtnHandler = handleAction;
+  tg.MainButton.onClick(mainBtnHandler);
+}
+function handleAction() {
+  switch (actionMode) {
+    case "answer":      submitAnswer(); break;
+    case "next":        nextQuestion(); break;
+    case "exam-next":
+    case "exam-finish": submitExamAnswer(); break;
+    case "start-exam":  startExam(); break;
+    case "back-home":   showScreen("home"); renderHome(); break;
+  }
+}
+function setActionEnabled(enabled) {
+  const btn = $("btn-action");
+  btn.disabled = !enabled;
+  if (isTG && tg.MainButton) {
+    if (enabled) tg.MainButton.enable();
+    else tg.MainButton.disable();
+  }
+}
+
+// ===== Утилиты =====
+function escapeHtml(s) {
+  return String(s)
+    .replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;");
+}
+
+// ===== Экзамен =====
+function renderExamIntro() {
+  setActionButton("start-exam");
+  setActionEnabled(true);
+}
+
+function pickExamPool() {
+  // Группируем по task_type, берём по одному случайному из каждого типа,
+  // сортируем по номеру типа (1, 2, ..., 16, 19)
+  const byType = {};
+  for (const q of questions) {
+    (byType[q.task_type] ||= []).push(q);
+  }
+  const types = Object.keys(byType).map(Number).sort((a, b) => a - b);
+  return types.map(t => byType[t][Math.floor(Math.random() * byType[t].length)]);
+}
+
+function startExam() {
+  examMode = true;
+  examAnswers = [];
+  examStartTime = Date.now();
+  currentPool = pickExamPool();
+  currentIndex = 0;
+  showScreen("question");
+  renderQuestion();
+  startExamTimer();
+}
+
+function startExamTimer() {
+  updateExamTimer();
+  examTimerId = setInterval(() => {
+    const rem = (examStartTime + EXAM_DURATION_MS) - Date.now();
+    if (rem <= 0) {
+      saveCurrentExamAnswer();
+      stopExamTimer();
+      finishExam();
+      return;
+    }
+    updateExamTimer();
+  }, 1000);
+}
+
+function stopExamTimer() {
+  if (examTimerId) { clearInterval(examTimerId); examTimerId = null; }
+}
+
+function updateExamTimer() {
+  const rem = Math.max(0, (examStartTime + EXAM_DURATION_MS) - Date.now());
+  const m = Math.floor(rem / 60000);
+  const s = Math.floor((rem % 60000) / 1000);
+  const el = $("q-timer");
+  if (!el) return;
+  el.textContent = `${m}:${String(s).padStart(2, "0")}`;
+  el.classList.toggle("warning", rem < 5 * 60 * 1000);
+}
+
+function getCurrentUserAnswer() {
+  if (useInput) return $("q-input").value.trim();
+  return [...selected].sort().join("");
+}
+
+function saveCurrentExamAnswer() {
+  const ua = getCurrentUserAnswer();
+  examAnswers.push({
+    q: currentQ,
+    userAnswer: ua,
+    correct: ua ? checkAnswer(ua, currentQ.answer) : false,
+  });
+  // Ошибка идёт в «работу над ошибками»
+  const last = examAnswers[examAnswers.length - 1];
+  if (!last.correct && !mistakes.includes(last.q.id)) mistakes.push(last.q.id);
+}
+
+function submitExamAnswer() {
+  saveCurrentExamAnswer();
+  if (currentIndex + 1 >= currentPool.length) {
+    stopExamTimer();
+    finishExam();
+  } else {
+    currentIndex++;
+    renderQuestion();
+  }
+}
+
+async function finishExam() {
+  examMode = false;
+  $("q-timer")?.classList.add("hidden");
+  await saveState();
+  renderExamResults();
+}
+
+function renderExamResults() {
+  showScreen("exam-results");
+  const correct = examAnswers.filter(a => a.correct).length;
+  const total = examAnswers.length;
+  const elapsed = Math.min(EXAM_DURATION_MS, Date.now() - examStartTime);
+  const m = Math.floor(elapsed / 60000);
+  const s = Math.floor((elapsed % 60000) / 1000);
+
+  $("er-correct").textContent = correct;
+  $("er-total").textContent = total;
+  $("er-pct").textContent = total ? Math.round(correct / total * 100) + "%" : "—";
+  $("er-time").textContent = `${m}:${String(s).padStart(2, "0")}`;
+  $("er-wrong").textContent = total - correct;
+
+  $("er-list").innerHTML = examAnswers.map((a, i) => {
+    const qt = a.q.question.length > 160 ? a.q.question.slice(0, 157) + "…" : a.q.question;
+    const userAns = a.userAnswer || "—";
+    return `<div class="review-item">
+      <div class="mark ${a.correct ? 'ok' : 'bad'}">${a.correct ? '✓' : '✗'}</div>
+      <div class="body">
+        <div class="qtext">${i + 1}. ${escapeHtml(qt)}</div>
+        <div class="ans">Ты: <b>${escapeHtml(userAns)}</b> · Верно: <b>${escapeHtml(a.q.answer)}</b></div>
+      </div>
+    </div>`;
+  }).join("");
+
+  setActionButton("back-home");
+  setActionEnabled(true);
+}
+
+// ===== Навигация =====
+document.querySelectorAll("[data-mode]").forEach(el => {
+  el.addEventListener("click", () => {
+    const m = el.dataset.mode;
+    if (m === "random") startQuiz({ random: true });
+    else if (m === "topics") { showScreen("topics"); renderTopics(); }
+    else if (m === "mistakes") {
+      if (!mistakes.length) { alert("Ошибок нет — можно решать новые задания."); return; }
+      startQuiz({ mistakes: true });
+    }
+    else if (m === "exam") { showScreen("exam-intro"); renderExamIntro(); }
+  });
+});
+
+if (isTG) {
+  tg.BackButton.onClick(() => {
+    if (examMode) {
+      if (confirm("Прервать экзамен? Результат не будет сохранён.")) {
+        stopExamTimer();
+        examMode = false;
+        showScreen("home"); renderHome();
+      }
+      return;
+    }
+    showScreen("home"); renderHome();
+  });
+}
+
+// ===== Старт =====
+(async () => {
+  try {
+    await loadState();
+    await loadQuestions();
+    renderHome();
+    showScreen("home");
+  } catch (e) {
+    document.body.innerHTML = `<div class="loader">Не удалось загрузить базу вопросов:<br/>${e.message}</div>`;
+  }
+})();
+</script>
+</body>
+</html>
