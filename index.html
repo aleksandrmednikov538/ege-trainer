@@ -181,6 +181,112 @@
   }
   .explanation.err { border-left-color: #c9504d; color: var(--muted); font-size: 13px; }
 
+  /* ===== Вторая часть ===== */
+  .section-divider {
+    margin: 28px 0 12px;
+    font-family: 'Unbounded', sans-serif;
+    font-size: 11px; font-weight: 600;
+    letter-spacing: 0.18em; text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .p2-task-text {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 14px 16px;
+    margin-bottom: 14px;
+    font-size: 15px; line-height: 1.55;
+    white-space: pre-wrap;
+  }
+
+  .p2-answer-area {
+    width: 100%;
+    min-height: 180px;
+    background: var(--surface);
+    border: 1.5px solid var(--border-strong);
+    border-radius: 12px;
+    padding: 12px 14px;
+    font-family: inherit;
+    font-size: 15px;
+    line-height: 1.5;
+    color: var(--ink);
+    resize: vertical;
+    box-sizing: border-box;
+    margin-bottom: 4px;
+  }
+  .p2-answer-area:focus { outline: none; border-color: var(--accent); }
+  .p2-char-count {
+    font-size: 11px; color: var(--muted);
+    text-align: right;
+    margin-bottom: 12px;
+    font-feature-settings: 'tnum';
+  }
+
+  /* Результат проверки */
+  .p2-score-hero {
+    display: flex; align-items: baseline; gap: 12px;
+    margin: 8px 0 16px;
+  }
+  .p2-score-hero .num {
+    font-family: 'Unbounded', sans-serif;
+    font-weight: 700; font-size: 56px;
+    line-height: 1; letter-spacing: -0.03em;
+  }
+  .p2-score-hero .of {
+    font-family: 'Unbounded', sans-serif;
+    color: var(--muted);
+    font-size: 28px;
+  }
+  .p2-score-hero .verdict {
+    font-size: 14px; color: var(--muted);
+    margin-left: 4px;
+  }
+  .p2-score-hero.s-full .num { color: #2c9e6a; }
+  .p2-score-hero.s-partial .num { color: #c79126; }
+  .p2-score-hero.s-zero .num { color: #c9504d; }
+
+  .p2-block {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 14px 16px;
+    margin-bottom: 10px;
+  }
+  .p2-block .label {
+    font-family: 'Unbounded', sans-serif;
+    font-size: 10px; font-weight: 600;
+    letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 8px;
+  }
+  .p2-block .content {
+    font-size: 14px; line-height: 1.55;
+    white-space: pre-wrap;
+  }
+  .p2-block.feedback-block { border-left: 3px solid var(--accent); }
+  .p2-block.reference-block { background: color-mix(in srgb, var(--accent) 5%, var(--surface)); }
+  .p2-block.your-block { background: color-mix(in srgb, var(--muted) 5%, var(--surface)); }
+
+  .p2-loading {
+    text-align: center;
+    padding: 40px 16px;
+    color: var(--muted);
+    font-size: 14px;
+  }
+  .p2-loading .dots::after {
+    content: '...';
+    animation: dots 1.4s steps(4) infinite;
+    display: inline-block;
+    width: 16px; text-align: left;
+  }
+  @keyframes dots {
+    0%, 20% { content: ''; }
+    40% { content: '.'; }
+    60% { content: '..'; }
+    80%, 100% { content: '...'; }
+  }
+
   /* ===== Список тем ===== */
   .topic {
     display: flex; justify-content: space-between; align-items: center;
@@ -309,6 +415,17 @@
     <div class="t">Экзамен <span style="color:var(--muted);font-weight:500;font-size:13px">· 16 заданий · 30 мин</span></div>
     <div class="d">Симуляция первой части. Без подсказок до конца.</div>
   </button>
+
+  <div class="section-divider">Вторая часть · с ИИ-проверкой</div>
+
+  <button class="mode-card" data-mode="part2-22">
+    <div class="t">Задание 22 <span style="color:var(--muted);font-weight:500;font-size:13px">· до 4 баллов</span></div>
+    <div class="d">Применение знаний в ситуации, 2–4 подвопроса.</div>
+  </button>
+  <button class="mode-card" data-mode="part2-23">
+    <div class="t">Задание 23 <span style="color:var(--muted);font-weight:500;font-size:13px">· до 3 баллов</span></div>
+    <div class="d">Положения Конституции РФ.</div>
+  </button>
 </section>
 
 <!-- ===== ЭКРАН: ВЫБОР ТЕМЫ ===== -->
@@ -364,6 +481,52 @@
   </div>
   <h2 class="display" style="font-size:16px;margin:8px 0 12px">Разбор по заданиям</h2>
   <div id="er-list"></div>
+</section>
+
+<!-- ===== ЭКРАН: ЗАДАНИЕ ВТОРОЙ ЧАСТИ ===== -->
+<section id="screen-p2-question" class="hidden">
+  <div class="meta">
+    <span class="pill" id="p2q-topic">—</span>
+    <span class="pill" id="p2q-type">—</span>
+  </div>
+  <div class="p2-task-text" id="p2q-text"></div>
+  <textarea class="p2-answer-area" id="p2q-answer"
+    placeholder="Напиши развёрнутый ответ здесь…"></textarea>
+  <div class="p2-char-count"><span id="p2q-chars">0</span> символов</div>
+</section>
+
+<!-- ===== ЭКРАН: ПРОВЕРКА (загрузка) ===== -->
+<section id="screen-p2-loading" class="hidden">
+  <div class="p2-loading">
+    <div style="font-family:'Unbounded',sans-serif;font-size:18px;margin-bottom:8px">
+      Проверяю ответ<span class="dots"></span>
+    </div>
+    <div>Это занимает 10–30 секунд.</div>
+  </div>
+</section>
+
+<!-- ===== ЭКРАН: РЕЗУЛЬТАТ ПРОВЕРКИ ===== -->
+<section id="screen-p2-result" class="hidden">
+  <div class="meta">
+    <span class="pill" id="p2r-type">—</span>
+  </div>
+  <div class="p2-score-hero" id="p2r-hero">
+    <div class="num" id="p2r-score">0</div>
+    <div class="of">/ <span id="p2r-max">3</span></div>
+    <div class="verdict" id="p2r-verdict"></div>
+  </div>
+  <div class="p2-block feedback-block">
+    <div class="label">Разбор</div>
+    <div class="content" id="p2r-feedback"></div>
+  </div>
+  <div class="p2-block your-block">
+    <div class="label">Твой ответ</div>
+    <div class="content" id="p2r-your"></div>
+  </div>
+  <div class="p2-block reference-block">
+    <div class="label">Эталонный ответ</div>
+    <div class="content" id="p2r-reference"></div>
+  </div>
 </section>
 
 <div class="bottom-action" id="bottom-action">
@@ -453,7 +616,7 @@ function checkAnswer(user, correct) {
 
 // ===== Рендеринг =====
 const $ = (id) => document.getElementById(id);
-const screens = ["home", "topics", "question", "exam-intro", "exam-results"];
+const screens = ["home", "topics", "question", "exam-intro", "exam-results", "p2-question", "p2-loading", "p2-result"];
 function showScreen(name) {
   for (const s of screens) $(`screen-${s}`).classList.toggle("hidden", s !== name);
   // BackButton
@@ -669,6 +832,8 @@ const ACTION_TEXTS = {
   "exam-finish":  ["Завершить экзамен", "ЗАВЕРШИТЬ"],
   "start-exam":   ["Начать экзамен",    "НАЧАТЬ"],
   "back-home":    ["На главную",        "НА ГЛАВНУЮ"],
+  "p2-check":     ["Проверить",         "ПРОВЕРИТЬ"],
+  "p2-next":      ["Следующее задание", "ДАЛЬШЕ"],
 };
 let mainBtnHandler = null;
 function setActionButton(mode) {
@@ -697,6 +862,8 @@ function handleAction() {
     case "exam-finish": submitExamAnswer(); break;
     case "start-exam":  startExam(); break;
     case "back-home":   showScreen("home"); renderHome(); break;
+    case "p2-check":    submitPart2Answer(); break;
+    case "p2-next":     nextPart2Question(); break;
   }
 }
 function setActionEnabled(enabled) {
@@ -712,6 +879,137 @@ function setActionEnabled(enabled) {
 function escapeHtml(s) {
   return String(s)
     .replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;");
+}
+
+// ===== Вторая часть (задания 22, 23) =====
+let part2Questions = [];       // загружается лениво при первом обращении
+let part2CurrentType = null;   // 22 или 23
+let part2Pool = [];            // перемешанный список вопросов выбранного типа
+let part2Cursor = 0;
+let part2CurrentQ = null;
+
+async function loadPart2Questions() {
+  if (part2Questions.length) return;
+  const resp = await fetch("questions_part2.json");
+  part2Questions = await resp.json();
+}
+
+async function startPart2(type) {
+  try {
+    await loadPart2Questions();
+  } catch (e) {
+    alert("Не удалось загрузить банк второй части: " + e.message);
+    return;
+  }
+  const filtered = part2Questions.filter(q => q.task_type === type);
+  if (!filtered.length) {
+    alert(`В банке нет заданий типа ${type}.`);
+    return;
+  }
+  part2CurrentType = type;
+  part2Pool = shuffle(filtered);
+  part2Cursor = 0;
+  renderPart2Question();
+}
+
+function shuffle(arr) {
+  const a = arr.slice();
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function renderPart2Question() {
+  if (part2Cursor >= part2Pool.length) {
+    // прошли весь пул — начинаем сначала
+    part2Pool = shuffle(part2Pool);
+    part2Cursor = 0;
+  }
+  part2CurrentQ = part2Pool[part2Cursor];
+  showScreen("p2-question");
+  $("p2q-topic").textContent = part2CurrentQ.topic_code;
+  $("p2q-type").textContent = `задание ${part2CurrentQ.task_type}`;
+  $("p2q-text").textContent = part2CurrentQ.question;
+  const ta = $("p2q-answer");
+  ta.value = "";
+  $("p2q-chars").textContent = "0";
+  ta.oninput = (e) => {
+    $("p2q-chars").textContent = e.target.value.length;
+  };
+  setActionButton("p2-check");
+  setActionEnabled(true);
+}
+
+async function submitPart2Answer() {
+  const userAnswer = $("p2q-answer").value.trim();
+  if (!userAnswer) {
+    if (!confirm("Отправить пустой ответ? Получишь 0 баллов.")) return;
+  }
+  showScreen("p2-loading");
+  hideMainButton();
+
+  const mode = part2CurrentQ.task_type === 22 ? "check22" : "check23";
+  try {
+    const resp = await fetch(AI_WORKER_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        mode,
+        question: part2CurrentQ.question,
+        correctAnswer: part2CurrentQ.answer,
+        userAnswer,
+      }),
+    });
+    const data = await resp.json();
+    if (!resp.ok || data.error) {
+      throw new Error(data.error || `HTTP ${resp.status}`);
+    }
+    renderPart2Result(data, userAnswer);
+  } catch (e) {
+    alert("Ошибка проверки: " + e.message);
+    showScreen("p2-question");
+    setActionButton("p2-check");
+    setActionEnabled(true);
+  }
+}
+
+function renderPart2Result(data, userAnswer) {
+  showScreen("p2-result");
+  $("p2r-type").textContent = `задание ${part2CurrentQ.task_type}`;
+  $("p2r-score").textContent = data.score;
+  $("p2r-max").textContent = data.maxScore;
+  $("p2r-verdict").textContent = data.verdict || "";
+  $("p2r-feedback").textContent = data.feedback || "—";
+  $("p2r-your").textContent = userAnswer || "(пусто)";
+  $("p2r-reference").textContent = data.reference || part2CurrentQ.answer;
+
+  const hero = $("p2r-hero");
+  hero.classList.remove("s-full", "s-partial", "s-zero");
+  if (data.score === 0) hero.classList.add("s-zero");
+  else if (data.score >= data.maxScore) hero.classList.add("s-full");
+  else hero.classList.add("s-partial");
+
+  // Haptic
+  if (isTG) {
+    if (data.score >= data.maxScore) tg.HapticFeedback?.notificationOccurred("success");
+    else if (data.score === 0) tg.HapticFeedback?.notificationOccurred("error");
+    else tg.HapticFeedback?.notificationOccurred("warning");
+  }
+
+  setActionButton("p2-next");
+  setActionEnabled(true);
+}
+
+function nextPart2Question() {
+  part2Cursor++;
+  renderPart2Question();
+}
+
+function hideMainButton() {
+  if (isTG && tg.MainButton) tg.MainButton.hide();
+  $("bottom-action").classList.add("hidden");
 }
 
 // ===== ИИ-разбор =====
@@ -730,6 +1028,7 @@ async function requestExplanation(q, userAnswer) {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
+        mode: "explain",
         question: q.question,
         options: q.options || [],
         correctAnswer: q.answer,
@@ -882,6 +1181,8 @@ document.querySelectorAll("[data-mode]").forEach(el => {
       startQuiz({ mistakes: true });
     }
     else if (m === "exam") { showScreen("exam-intro"); renderExamIntro(); }
+    else if (m === "part2-22") startPart2(22);
+    else if (m === "part2-23") startPart2(23);
   });
 });
 
